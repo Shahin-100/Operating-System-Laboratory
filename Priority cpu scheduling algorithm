@@ -1,0 +1,186 @@
+jobs = []
+
+total_jobs = int(input("Enter the number of processes: "))
+
+print("Enter the Processes: PID AT BT PR")
+
+for idx in range(total_jobs):
+    pid, at, bt, pr = input().split(" ")
+    jobs.append((pid, int(at), int(bt), int(pr)))
+
+
+clock = 0
+finished_count = 0
+is_done = [False] * total_jobs
+np_output = []
+
+while finished_count < total_jobs:
+    chosen = -1
+    top_priority = float('inf')
+
+    for idx in range(total_jobs):
+        pid, at, bt, pr = jobs[idx]
+
+        if not is_done[idx] and at <= clock:
+            if pr < top_priority:
+                top_priority = pr
+                chosen = idx
+
+            elif pr == top_priority:
+                if at < jobs[chosen][1]:
+                    chosen = idx
+
+    if chosen == -1:
+        clock += 1
+        continue
+
+    pid, at, bt, pr = jobs[chosen]
+
+    finish = clock + bt
+    tat = finish - at
+    wt = tat - bt
+
+    clock = finish
+    is_done[chosen] = True
+    finished_count += 1
+
+    np_output.append((pid, at, bt, pr, finish, tat, wt))
+
+
+sum_wt = 0
+sum_tat = 0
+
+print("\nNON PREEMPTIVE")
+print("PID\tAT\tBT\tPR\tCT\tTAT\tWT")
+
+for pid, at, bt, pr, finish, tat, wt in np_output:
+    print(f"{pid}\t{at}\t{bt}\t{pr}\t{finish}\t{tat}\t{wt}")
+
+    sum_wt += wt
+    sum_tat += tat
+
+np_mean_wt = sum_wt / total_jobs
+np_mean_tat = sum_tat / total_jobs
+
+print(f"Average waiting time = {np_mean_wt:.2f}")
+print(f"Average turnaround time = {np_mean_tat:.2f}")
+
+
+clock = 0
+finished_count = 0
+
+left_bt = [bt for pid, at, bt, pr in jobs]
+
+finish_arr = [0] * total_jobs
+tat_arr = [0] * total_jobs
+wt_arr = [0] * total_jobs
+
+while finished_count < total_jobs:
+    pick = -1
+
+    for idx in range(total_jobs):
+        pid, at, bt, pr = jobs[idx]
+
+        if at <= clock and left_bt[idx] > 0:
+
+            if pick == -1:
+                pick = idx
+
+            else:
+                pick_pid, pick_at, pick_bt, pick_pr = jobs[pick]
+
+                if pr < pick_pr:
+                    pick = idx
+
+                elif pr == pick_pr:
+                    if at < pick_at:
+                        pick = idx
+
+    if pick == -1:
+        clock += 1
+        continue
+
+    left_bt[pick] -= 1
+    clock += 1
+
+    if left_bt[pick] == 0:
+        pid, at, bt, pr = jobs[pick]
+
+        finish_arr[pick] = clock
+        tat_arr[pick] = clock - at
+        wt_arr[pick] = tat_arr[pick] - bt
+
+        finished_count += 1
+
+
+sum_wt = 0
+sum_tat = 0
+
+print("\nPREEMPTIVE")
+print("PID\tAT\tBT\tPR\tCT\tTAT\tWT")
+
+for idx in range(total_jobs):
+    pid, at, bt, pr = jobs[idx]
+
+    print(
+        f"{pid}\t{at}\t{bt}\t{pr}\t"
+        f"{finish_arr[idx]}\t"
+        f"{tat_arr[idx]}\t"
+        f"{wt_arr[idx]}"
+    )
+
+    sum_wt += wt_arr[idx]
+    sum_tat += tat_arr[idx]
+
+p_mean_wt = sum_wt / total_jobs
+p_mean_tat = sum_tat / total_jobs
+
+print(f"Average waiting time = {p_mean_wt:.2f}")
+print(f"Average turnaround time = {p_mean_tat:.2f}")
+
+
+print("\nCOMPARISON")
+print("METRIC\t\t\tNON PREEMPTIVE\tPREEMPTIVE")
+
+print(f"Average waiting time\t{np_mean_wt:.2f}\t\t{p_mean_wt:.2f}")
+print(f"Average turnaround time\t{np_mean_tat:.2f}\t\t{p_mean_tat:.2f}")
+
+
+print("\n Waiting Time Comparison ")
+
+if p_mean_wt < np_mean_wt:
+    diff = np_mean_wt - p_mean_wt
+    print(f"Preemptive scheduling performs better in waiting time by {diff:.2f}.")
+
+elif np_mean_wt < p_mean_wt:
+    diff = p_mean_wt - np_mean_wt
+    print(f"Non-preemptive scheduling performs better in waiting time by {diff:.2f}.")
+
+else:
+    print("Both scheduling methods have the same average waiting time.")
+
+
+print("\n Turnaround Time Comparison ")
+
+if p_mean_tat < np_mean_tat:
+    diff = np_mean_tat - p_mean_tat
+    print(f"Preemptive scheduling performs better in turnaround time by {diff:.2f}.")
+
+elif np_mean_tat < p_mean_tat:
+    diff = p_mean_tat - np_mean_tat
+    print(f"Non-preemptive scheduling performs better in turnaround time by {diff:.2f}.")
+
+else:
+    print("Both scheduling methods have the same average turnaround time.")
+
+
+print("\n Final Comparison ")
+
+if p_mean_wt < np_mean_wt and p_mean_tat < np_mean_tat:
+    print("Overall, PREEMPTIVE scheduling gives better performance.")
+
+elif np_mean_wt < p_mean_wt and np_mean_tat < p_mean_tat:
+    print("Overall, NON-PREEMPTIVE scheduling gives better performance.")
+
+else:
+    print("The better scheduling method depends on the performance metric being considered.")
