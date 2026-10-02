@@ -1,0 +1,28 @@
+n = int(input("Enter number of requests: "))
+
+requests = []
+
+for i in range(n):
+    x = int(input("Enter request: "))
+    requests.append(x)
+
+head = int(input("Enter initial head position: "))
+
+total_seek = 0
+
+print("SSTF Sequence:", end=" ")
+
+while requests:
+    closest = requests[0]
+
+    for x in requests:
+        if abs(x - head) < abs(closest - head):
+            closest = x
+
+    total_seek += abs(closest - head)
+    head = closest
+
+    print(closest, end=" ")
+    requests.remove(closest)
+
+print("\nTotal Seek Time:", total_seek)
