@@ -1,0 +1,44 @@
+n = int(input("Enter number of requests: "))
+
+requests = []
+
+for i in range(n):
+    x = int(input("Enter request: "))
+    requests.append(x)
+
+head = int(input("Enter initial head position: "))
+
+total_seek = 0
+direction=input("Enter direction (left/right): ")
+requests.sort()
+left=[]
+right=[]
+for x in requests:
+    if x<head:
+        left.append(x)
+    else:
+        right.append(x)
+print("SCAN Sequence:", end=" ")
+if direction=="right":
+  for x in right:
+    total_seek +=abs(x-head)
+    head=x
+    print(x, end=" ")
+  for x in reversed(left):
+    total_seek +=abs(x-head)
+    head=x
+    print(x, end=" ")
+
+else:
+  for x in reversed(left):
+    total_seek +=abs(x-head)
+    head=x
+    print(x, end=" ")
+
+  for x in right:
+    total_seek +=abs(x-head)
+    head=x
+    print(x, end=" ")
+
+
+print("\nTotal seek time:", total_seek)
