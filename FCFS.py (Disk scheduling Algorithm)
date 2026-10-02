@@ -1,0 +1,22 @@
+n = int(input("Enter number of requests: "))
+
+requests = []
+for i in range(n):
+    requests.append(int(input("Enter request: ")))
+
+head = int(input("Enter initial head position: "))
+
+total = 0
+current = head
+
+print("\nSeek Sequence:", current, end=" ")
+
+for request in requests:
+    distance = abs(request - current)
+    total += distance
+    current = request
+
+    print("->", current, end=" ")
+
+print("\nTotal No. of seek operation =", total)
+print("Average seek Movement =", total / n)
